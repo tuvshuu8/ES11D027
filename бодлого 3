@@ -1,0 +1,51 @@
+#include "C:\Users\work\OneDrive\Documents\adc\bod3.h"
+#define led PIN_D0
+#bit TMR1ON=0xFCD.0   
+   char adc_value;
+   float data[10],sum=0;
+   int i=0,j;
+
+#int_TIMER1
+   void TIMER1_isr() 
+   {
+      set_timer1(55535);
+      adc_value=read_adc();    
+      data[i]=adc_value*0.01965;   
+         i++;
+           if(i==10) i=0; 
+   }
+   
+
+   
+   void main()
+   {
+   
+      setup_adc_ports(AN0);
+      setup_adc(ADC_CLOCK_INTERNAL);
+      setup_timer_0(RTCC_INTERNAL|RTCC_DIV_1);
+      setup_timer_1(T1_INTERNAL|T1_DIV_BY_2);
+      set_timer1(55535);
+      enable_interrupts(INT_TIMER1);
+      enable_interrupts(GLOBAL);
+   
+      // TODO: USER CODE!!
+      set_tris_d(0x00);
+      set_adc_channel(0);
+      TMR1ON=1;
+      
+      while(TRUE)
+      {
+     output_toggle(led);  
+     delay_ms(200);
+         sum=0;   
+         if(i==10)
+         {
+            for(j=0;j<=10;j++)
+            {
+               sum=sum+data[j];
+            }
+            i=0;
+            printf("%f \r\n",sum/10);    
+         }
+      }
+   }
